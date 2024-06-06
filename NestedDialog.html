@@ -50,6 +50,8 @@
       </div>
       <div class="modal-footer" id="saveActionButtons">
         <!-- The buttons will be dynamically added here -->
+        <button type="button" class="btn btn-primary" id="confirmSaveBtn">Confirm Save</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
       </div>
     </div>
   </div>
@@ -65,22 +67,22 @@
         $("#saveDialog").modal('show');
     }
 
-    function showNextActionDialog(selectedText) {
+    var catchMeIfYouCan = function() {
+        console.log("I will call your HTTP method");
+    };
+
+    function showNextActionDialog(selectedText, callback) {
         $("#nextActionDialog").modal('show');
         $("#responseMessage").text("Do you want to save " + selectedText + "?");
         
         // Conditionally display buttons based on selected option
         if (selectedText === "Vacation" || selectedText === "Sick Leave") {
             // If Vacation or Sick Leave is selected, display two buttons for confirmation
-            $("#saveActionButtons").html(`
-                <button type="button" class="btn btn-primary" id="confirmSaveBtn">Confirm Save</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-            `);
+            $("#confirmSaveBtn").off().click(function(){
+                callback();
+            });
         } else {
-            // Otherwise, display only the Close button
-            $("#saveActionButtons").html(`
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            `);
+            console.log("Inside Next Action Block");
         }
     }
 
@@ -94,12 +96,14 @@
         // Event handler for the proceed button in the save dialog
         $("#proceedBtn").click(function() {
             $("#saveDialog").modal('hide');
+            
             // Proceed with another action
             var selectedText = $("#nextActionSelect option:selected").text();
             if (selectedText === "Vacation" || selectedText === "Sick Leave") {
-                showNextActionDialog(selectedText);
+                showNextActionDialog(selectedText, catchMeIfYouCan);
             } else {
                 console.log("Submitted");
+                catchMeIfYouCan();
             }
         });
 
@@ -116,8 +120,7 @@
         });
 
         // Event handler for the cancel button in the next action dialog
-        $(".modal-footer .btn-secondary").
-click(function() {
+        $(".modal-footer .btn-secondary").click(function() {
             $("#nextActionDialog").modal('hide');
             // Return to the save dialog
             showSaveDialog();
