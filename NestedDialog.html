@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Save Data Dialog Example</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+  }
+</style>
+</head>
+<body>
+
+<div id="saveDialog" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Save Successful</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        Data saved successfully. Do you want to proceed with another action?
+        <select id="nextActionSelect" class="form-control">
+            <option value="Vacation">Vacation</option>
+            <option value="Sick Leave">Sick Leave</option>
+            <option value="Others">Others</option>
+          </select>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="proceedBtn">Proceed</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="nextActionDialog" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Next Action Response</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="responseMessage"></p>
+      </div>
+      <div class="modal-footer" id="saveActionButtons">
+        <!-- The buttons will be dynamically added here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <button id="saveButton" class="btn btn-primary">Save Data</button>
+</div>
+
+<script>
+    // Define functions for dialog events
+    function showSaveDialog() {
+        $("#saveDialog").modal('show');
+    }
+
+    function showNextActionDialog(selectedText) {
+        $("#nextActionDialog").modal('show');
+        $("#responseMessage").text("Do you want to save " + selectedText + "?");
+        
+        // Conditionally display buttons based on selected option
+        if (selectedText === "Vacation" || selectedText === "Sick Leave") {
+            // If Vacation or Sick Leave is selected, display two buttons for confirmation
+            $("#saveActionButtons").html(`
+                <button type="button" class="btn btn-primary" id="confirmSaveBtn">Confirm Save</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            `);
+        } else {
+            // Otherwise, display only the Close button
+            $("#saveActionButtons").html(`
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            `);
+        }
+    }
+
+    $(document).ready(function() {
+        // Event handler for the save button
+        $("#saveButton").click(function() {
+            // Check if selected is Vacation or Sick Leave
+            showSaveDialog();
+        });
+
+        // Event handler for the proceed button in the save dialog
+        $("#proceedBtn").click(function() {
+            $("#saveDialog").modal('hide');
+            // Proceed with another action
+            var selectedText = $("#nextActionSelect option:selected").text();
+            if (selectedText === "Vacation" || selectedText === "Sick Leave") {
+                showNextActionDialog(selectedText);
+            } else {
+                console.log("Submitted");
+            }
+        });
+
+        // Event handler for the confirm save button in the next action dialog
+        $("#nextActionDialog").on("click", "#confirmSaveBtn", function() {
+            var selectedText = $("#nextActionSelect option:selected").text();
+            // Perform save action
+            var responseMessage = selectedText + " saved successfully!";
+            $("#responseMessage").text(responseMessage);
+            // Close the modal after a short delay
+            setTimeout(function() {
+                $("#nextActionDialog").modal('hide');
+            }, 2000);
+        });
+
+        // Event handler for the cancel button in the next action dialog
+        $(".modal-footer .btn-secondary").
+click(function() {
+            $("#nextActionDialog").modal('hide');
+            // Return to the save dialog
+            showSaveDialog();
+        });
+    });
+</script>
+
+</body>
+</html>
